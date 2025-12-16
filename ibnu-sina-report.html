@@ -601,8 +601,7 @@
             
             <div class="chart-container">
                 <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Engagement Rates by Content Format</h3>
-                <canvas id="engagementChart"></canvas>
-                <script>
+                <canvas id="engagementChart" width="800" height="400" style="max-width: 100%; display: block;"></canvas>                <script>
                     const engagementCtx = document.getElementById('engagementChart').getContext('2d');
                     new Chart(engagementCtx, {
                         type: 'bar',
@@ -756,8 +755,7 @@
 
             <div class="chart-container">
                 <h3 style="text-align: center; color: #667eea; margin-bottom: 20px;">Current vs Recommended Budget Allocation</h3>
-                <canvas id="budgetChart"></canvas>
-                <script>
+                <canvas id="budgetChart" width="800" height="400" style="max-width: 100%; display: block;"></canvas>                <script>
                     const budgetCtx = document.getElementById('budgetChart').getContext('2d');
                     new Chart(budgetCtx, {
                         type: 'doughnut',
