@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISW META Retargeting Campaign - Status Report</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        header {
+            border-bottom: 4px solid #2ecc71;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-left {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            flex: 1;
+        }
+        .header-logo {
+            flex-shrink: 0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .header-logo img {
+            height: 80px;
+            width: auto;
+        }
+        .header-content {
+            flex: 1;
+        }
+        .header-right {
+            flex-shrink: 0;
+        }
+        h1 {
+            font-size: 2.2em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .title-with-badge {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1em;
+            white-space: nowrap;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .report-date {
+            color: #7f8c8d;
+            font-size: 0.95em;
+            margin-top: 5px;
+        }
+        section {
+            margin-bottom: 50px;
+        }
+        h2 {
+            font-size: 1.8em;
+            color: #2c3e50;
+            border-left: 4px solid #2ecc71;
+            padding-left: 20px;
+            margin-bottom: 25px;
+            margin-top: 30px;
+        }
+        h3 {
+            font-size: 1.3em;
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        
+        /* METRICS CARDS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s;
+            position: relative;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        .metric-card.green {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+        .metric-card.blue {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        .metric-card.orange {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        .metric-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .metric-dropdown {
+            font-size: 1.2em;
+            margin-left: 5px;
+        }
+        
+        /* DROPDOWN MENU */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            bottom: -200px;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #2ecc71;
+            border-radius: 8px;
+            padding: 20px;
+            color: #333;
+            text-align: left;
+            z-index: 100;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            min-width: 300px;
+        }
+        .dropdown-content.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95em;
+        }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .dropdown-item strong {
+            color: #2ecc71;
+        }
+        
+        /* STRUCTURE DIAGRAM */
+        .structure-diagram {
+            background: #f9f9f9;
+            border: 2px solid #2ecc71;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+        .structure-diagram-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .structure-line {
+            color: #555;
+            white-space: pre-wrap;
+        }
+        .structure-campaign {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .structure-adset {
+            color: #6c3483;
+            font-weight: bold;
+        }
+        .structure-ad {
+            color: #6c3483;
+        }
+        .structure-budget {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        
+        .info-box {
+            background: #e8f8f5;
+            border-left: 4px solid #2ecc71;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box.warning {
+            background: #fdeef4;
+            border-left-color: #e74c3c;
+        }
+        .info-box.blue {
+            background: #ebf5fb;
+            border-left-color: #3498db;
+        }
+        .info-box.highlight {
+            background: #fff3cd;
+            border-left-color: #f39c12;
+            font-weight: 500;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+        }
+        
+        canvas {
+            max-height: 400px;
+        }
+        
+        .status-active {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .status-upcoming {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+        
+        /* KEY SUCCESS FACTORS */
+        .success-factor {
+            background: #f0f8f0;
+            border-left: 4px solid #2ecc71;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success-factor-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .success-factor-content {
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        .success-factor.client-owned {
+            background: #fff3cd;
+            border-left-color: #f39c12;
+        }
+        
+        footer {
+            border-top: 2px solid #ddd;
+            padding-top: 20px;
+            margin-top: 50px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.4em;
+            }
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            .dropdown-content {
+                position: static;
+                display: none;
+                margin-top: 10px;
+            }
+            .metric-card {
+                text-align: left;
+            }
+            .metric-value {
+                font-size: 1.8em;
+            }
+            table {
+                font-size: 0.9em;
+            }
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div style="display: flex; gap: 30px; align-items: center; flex: 1;">
+                <div class="header-logo">
+                    <!-- Ibnu Sina Logo -->
+                    <img src="IBNU_SINA_LOGO_URL_HERE" alt="Ibnu Sina Logo" style="height: 80px; width: auto;" onerror="this.style.display='none';">
+                    
+                    <!-- ISW Logo -->
+                    <div style="
+                        width: 80px;
+                        height: 80px;
+                        background: linear-gradient(135deg, #2ecc71, #27ae60);
+                        border-radius: 10px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: bold;
+                        font-size: 18px;
+                        text-align: center;
+                        line-height: 1.2;
+                    ">
+                        <div style="font-size: 28px;">💚</div>
+                        <div style="font-size: 12px; margin-top: 2px; font-weight: bold;">ISW</div>
+                    </div>
+                </div>
+                <div class="header-content">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <h1>META Retargeting Campaign - Status Report</h1>
+                        <div class="status-badge" style="margin: 0;">
+                            <span class="status-indicator"></span>
+                            LIVE
+                        </div>
+                    </div>
+                    <p class="report-date">ISW Initiative | December 2025</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- OVERVIEW - A SNAPSHOT -->
+        <section>
+            <h2>📊 Overview - A Snapshot</h2>
+            
+            <!-- TASKS UNDERTAKEN -->
+            <div class="info-box highlight">
+                <strong style="font-size: 1.1em;">✓ Tasks Undertaken:</strong>
+                <ul style="margin: 15px 0 0 20px;">
+                    <li><strong>Campaign Architecture Redesign:</strong> Restructured Meta campaign framework with optimized ad set hierarchy and creative deployment strategy for maximum audience relevance and performance tracking</li>
+                    <li><strong>Database Intelligence & Segmentation:</strong> Processed and cleansed 18,500+ raw database records into 15,668 verified leads with 99.5% phone coverage, strategically segmented into High-Intent (Hot), Active-Interest (Warm), and Awareness (Cold) audience tiers</li>
+                    <li><strong>Custom Audience Infrastructure Setup:</strong> Prepared, formatted, and uploaded database lists to Meta Ads Manager with verified custom audience targeting, ensuring seamless audience matching and suppression rules across campaign</li>
+                    <li><strong>Performance-Driven Budget Optimization:</strong> Analyzed audience behavior patterns and designed optimal budget allocation (40% Hot, 40% Warm, 20% Cold) based on conversion intent and historical engagement metrics</li>
+                    <li><strong>Quality Assurance & Pre-Launch Validation:</strong> Conducted comprehensive system audit of campaign structure, budget allocation accuracy, creative asset quality, call-to-action alignment, and landing page performance before campaign execution</li>
+                    <li><strong>Live Campaign Monitoring & Issue Resolution:</strong> Established real-time campaign monitoring protocols to identify and resolve initial performance anomalies, audience targeting discrepancies, and creative delivery issues within first 48 hours of launch</li>
+                </ul>
+            </div>
+
+            <div class="metrics-grid">
+                <!-- Leads Activated -->
+                <div class="metric-card green" onclick="toggleDropdown(this)">
+                    <div class="metric-label"><strong>Leads Activated</strong></div>
+                    <div class="metric-value">15,668 <span class="metric-dropdown">🔽</span></div>
+                    <div style="font-size: 0.75em; margin-top: 10px; font-weight: bold;">[Click for more]</div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item"><strong>Master List:</strong> 15,668</div>
+                        <div class="dropdown-item"><strong>🔥 Hot List:</strong> 2,097</div>
+                        <div class="dropdown-item"><strong>😎 Warm List:</strong> 12,628</div>
+                        <div class="dropdown-item"><strong>🧊 Cold List:</strong> 943</div>
+                    </div>
+                </div>
+
+                <!-- Active Ads -->
+                <div class="metric-card blue" onclick="toggleDropdown(this)">
+                    <div class="metric-label"><strong>Active Ads</strong></div>
+                    <div class="metric-value">9 <span class="metric-dropdown">🔽</span></div>
+                    <div style="font-size: 0.75em; margin-top: 10px; font-weight: bold;">[Click for more]</div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item"><strong>🔥 Hot Ads (5):</strong></div>
+                        <div class="dropdown-item">• Hot_C_Vid • Hot_D_Vid • Hot_E_Vid</div>
+                        <div class="dropdown-item">• Hot_A_Static • Hot_B_Static</div>
+                        <div class="dropdown-item"><strong>😎 Warm Ads (2):</strong></div>
+                        <div class="dropdown-item">• Warm_D_Vid • Warm_E_Vid</div>
+                        <div class="dropdown-item"><strong>🧊 Cold Ads (2):</strong></div>
+                        <div class="dropdown-item">• Cold_C_Vid • Cold_E_Vid</div>
+                    </div>
+                </div>
+
+                <!-- Campaign Status - Approved -->
+                <div class="metric-card orange" onclick="toggleDropdown(this)">
+                    <div class="metric-label"><strong>Approved</strong></div>
+                    <div class="metric-value">✅ <span class="metric-dropdown">🔽</span></div>
+                    <div style="font-size: 0.75em; margin-top: 10px; font-weight: bold;">[Click for more]</div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item"><strong>Status:</strong> ✅ Fully Operational</div>
+                        <div class="dropdown-item"><strong>9 Live Ads:</strong> Learning Status</div>
+                        <div class="dropdown-item"><strong>Meta Review:</strong> ✅ APPROVED</div>
+                        <div class="dropdown-item"><strong>🔥 Hot (5):</strong> ✅ Delivering</div>
+                        <div class="dropdown-item"><strong>😎 Warm (2):</strong> ✅ Delivering</div>
+                        <div class="dropdown-item"><strong>🧊 Cold (2):</strong> ✅ Delivering</div>
+                        <div class="dropdown-item"><strong>Daily Spend:</strong> RM 333/day</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CAMPAIGN STRUCTURE -->
+        <section>
+            <h2>🏗️ Campaign Structure</h2>
+            
+            <div class="structure-diagram">
+                <div class="structure-diagram-title">📋 Complete Campaign Structure</div>
+                <div class="structure-line"><span class="structure-campaign">ISW | BOOKINGS | CONVERSIONS</span> Campaign
+  │
+  ├─ <span class="structure-adset">🔥 HOT Audience (High-Intent Seminar Attendees)</span>
+  │  ├─ Audience: 2,097 contacts (13.4%)
+  │  ├─ <span class="structure-budget">Budget: RM 133/day (40%)</span>
+  │  ├─ Ad Set: HOT | Seminar Attendees
+  │  └─ Ads: 5 active
+  │     ├─ <span class="structure-ad">Hot_C_Vid (Creative C - Ramai Berjaya)</span>
+  │     ├─ <span class="structure-ad">Hot_D_Vid (Creative D - Social Proof)</span>
+  │     ├─ <span class="structure-ad">Hot_E_Vid (Creative E - Inspiration)</span>
+  │     ├─ <span class="structure-ad">Hot_A_Static (Creative A - Percuma Offer)</span>
+  │     └─ <span class="structure-ad">Hot_B_Static (Creative B - Ramai Berjaya 2)</span>
+  │
+  ├─ <span class="structure-adset">😎 WARM Audience (Health Assessment Leads)</span>
+  │  ├─ Audience: 12,628 contacts (80.5%)
+  │  ├─ <span class="structure-budget">Budget: RM 133/day (40%)</span>
+  │  ├─ Ad Set: WARM | Health Assessment Leads
+  │  └─ Ads: 2 active
+  │     ├─ <span class="structure-ad">Warm_D_Vid (Creative D - Social Proof)</span>
+  │     └─ <span class="structure-ad">Warm_E_Vid (Creative E - Inspiration)</span>
+  │
+  └─ <span class="structure-adset">🧊 COLD Audience (Education & Awareness)</span>
+     ├─ Audience: 943 contacts (6.0%)
+     ├─ <span class="structure-budget">Budget: RM 67/day (20%)</span>
+     ├─ Ad Set: COLD | Awareness & Education
+     └─ Ads: 2 active
+        ├─ <span class="structure-ad">Cold_C_Vid (Creative C - Ramai Berjaya)</span>
+        └─ <span class="structure-ad">Cold_E_Vid (Creative E - Inspiration)</span></div>
+            </div>
+
+            <div class="info-box blue">
+                <strong>How Retargeting Works:</strong> ISW campaign uses <strong>Custom Audience Retargeting</strong> - the most effective method for reaching people who already know about your wellness centre. Meta matches phone numbers and emails from your database to Facebook/Instagram accounts automatically. This is NOT cold prospecting - it's reaching people already in your ecosystem.
+            </div>
+        </section>
+
+        <!-- CREATIVE DETAILS -->
+        <section>
+            <h2>🎬 Creatives Deployed</h2>
+            <p>These are proven, tested creatives from previous campaigns - optimized and redeployed with improved audience segmentation.</p>
+            <table>
+                <tr>
+                    <th>Creative</th>
+                    <th>Type</th>
+                    <th>Format</th>
+                    <th>CTA Button</th>
+                    <th>Landing URL</th>
+                    <th>Used In</th>
+                </tr>
+                <tr>
+                    <td><strong>Creative C</strong><br/>Ramai Berjaya</td>
+                    <td>VIDEO</td>
+                    <td>Reels/Stories</td>
+                    <td>Visit Website</td>
+                    <td>bangkitkannikmathidupmu.com</td>
+                    <td>Hot, Cold</td>
+                </tr>
+                <tr>
+                    <td><strong>Creative D</strong><br/>Social Proof</td>
+                    <td>VIDEO</td>
+                    <td>Reels/Stories</td>
+                    <td>Visit Website</td>
+                    <td>bangkitkannikmathidupmu.com</td>
+                    <td>Hot, Warm</td>
+                </tr>
+                <tr>
+                    <td><strong>Creative E</strong><br/>Inspiration</td>
+                    <td>VIDEO</td>
+                    <td>Reels/Stories</td>
+                    <td>Visit Website</td>
+                    <td>bangkitkannikmathidupmu.com</td>
+                    <td>Hot, Warm, Cold</td>
+                </tr>
+                <tr>
+                    <td><strong>Creative A</strong><br/>Percuma Offer</td>
+                    <td>STATIC</td>
+                    <td>Feed/Carousel</td>
+                    <td>Learn More</td>
+                    <td>bangkitkannikmathidupmu.com</td>
+                    <td>Hot</td>
+                </tr>
+                <tr>
+                    <td><strong>Creative B</strong><br/>Ramai Berjaya 2</td>
+                    <td>STATIC</td>
+                    <td>Feed/Carousel</td>
+                    <td>Learn More</td>
+                    <td>bangkitkannikmathidupmu.com</td>
+                    <td>Hot</td>
+                </tr>
+            </table>
+            <p style="margin-top: 20px; font-style: italic; color: #666;">Total: 3 Videos + 2 Static Images = 5 Creatives</p>
+        </section>
+
+        <!-- DATA CLEANSING -->
+        <section>
+            <h2>📊 Data Cleansing & Preparation</h2>
+            <div class="info-box">
+                <strong>Processing Journey:</strong> 18,500+ raw records → 15,668 clean, usable leads
+            </div>
+            <table>
+                <tr>
+                    <th>Stage</th>
+                    <th>Records</th>
+                    <th>Action</th>
+                    <th>Retained</th>
+                </tr>
+                <tr>
+                    <td>Starting Records</td>
+                    <td>18,500+</td>
+                    <td>-</td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td>Duplicates Removed</td>
+                    <td>2,832</td>
+                    <td>Deleted</td>
+                    <td>84.7%</td>
+                </tr>
+                <tr>
+                    <td>Incomplete Records</td>
+                    <td>500</td>
+                    <td>Removed</td>
+                    <td>84.7%</td>
+                </tr>
+                <tr>
+                    <td><strong>Final Clean Leads</strong></td>
+                    <td><strong>15,668</strong></td>
+                    <td>-</td>
+                    <td><strong>84.7%</strong></td>
+                </tr>
+            </table>
+            
+            <h3>Segmentation Breakdown</h3>
+            <table>
+                <tr>
+                    <th>Segment</th>
+                    <th>Contacts</th>
+                    <th>Percentage</th>
+                    <th>Phone Coverage</th>
+                </tr>
+                <tr>
+                    <td><strong>🔥 HOT</strong> - Seminar Attendees</td>
+                    <td>2,097</td>
+                    <td>13.4%</td>
+                    <td>99.5%</td>
+                </tr>
+                <tr>
+                    <td><strong>😎 WARM</strong> - Assessment Leads</td>
+                    <td>12,628</td>
+                    <td>80.5%</td>
+                    <td>99.5%</td>
+                </tr>
+                <tr>
+                    <td><strong>🧊 COLD</strong> - Education Contacts</td>
+                    <td>943</td>
+                    <td>6.0%</td>
+                    <td>99.5%</td>
+                </tr>
+                <tr>
+                    <td><strong>TOTAL</strong></td>
+                    <td><strong>15,668</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td><strong>99.5%</strong></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- BUDGET BREAKDOWN -->
+        <section>
+            <h2>💰 Budget Breakdown</h2>
+            <p>Monthly budget: <strong>RM 10,000</strong> allocated across three audience segments:</p>
+            <table>
+                <tr>
+                    <th>Segment</th>
+                    <th>Daily Budget</th>
+                    <th>Monthly Budget</th>
+                    <th>% Allocation</th>
+                    <th>Rationale</th>
+                </tr>
+                <tr>
+                    <td><strong>🔥 HOT</strong></td>
+                    <td>RM 133</td>
+                    <td>RM 3,990</td>
+                    <td>40%</td>
+                    <td>Highest intent, seminar attendees</td>
+                </tr>
+                <tr>
+                    <td><strong>😎 WARM</strong></td>
+                    <td>RM 133</td>
+                    <td>RM 3,990</td>
+                    <td>40%</td>
+                    <td>Health assessment leads, strong interest</td>
+                </tr>
+                <tr>
+                    <td><strong>🧊 COLD</strong></td>
+                    <td>RM 67</td>
+                    <td>RM 2,010</td>
+                    <td>20%</td>
+                    <td>Education & awareness building</td>
+                </tr>
+                <tr>
+                    <td><strong>TOTAL</strong></td>
+                    <td><strong>RM 333</strong></td>
+                    <td><strong>RM 9,990</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td>-</td>
+                </tr>
+            </table>
+            
+            <div class="chart-container">
+                <canvas id="budgetChart"></canvas>
+            </div>
+        </section>
+
+        <!-- ROAS PROJECTIONS -->
+        <section>
+            <h2>📈 ROAS Projections & Timeline</h2>
+            <div class="info-box">
+                <strong>Target: Front-End ROAS 0.8-1.0x (Month 1), Back-End ROAS 10x+ (Month 5+)</strong>
+            </div>
+            
+            <h3>6-Month Trajectory</h3>
+            <table>
+                <tr>
+                    <th>Period</th>
+                    <th>Front-End ROAS</th>
+                    <th>Back-End ROAS</th>
+                    <th>Phase</th>
+                    <th>Actions</th>
+                </tr>
+                <tr>
+                    <td>Month 1-2</td>
+                    <td>0.8-1.0x</td>
+                    <td>2.0-3.0x</td>
+                    <td>Learning & Optimization</td>
+                    <td>Validate targeting, identify best creatives</td>
+                </tr>
+                <tr>
+                    <td>Month 3-4</td>
+                    <td>2.5-3.5x</td>
+                    <td>6.6-8.8x</td>
+                    <td>Scaling & Expansion</td>
+                    <td>Add cold prospecting, custom thumbnails</td>
+                </tr>
+                <tr>
+                    <td>Month 5-6</td>
+                    <td>5.0-7.0x</td>
+                    <td>15.4-22x</td>
+                    <td>Full Optimization</td>
+                    <td>Expand awareness/consideration tracks</td>
+                </tr>
+            </table>
+
+            <div class="chart-container">
+                <canvas id="roasChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 12-WEEK IMPLEMENTATION ROADMAP -->
+        <section>
+            <h2>🗺️ 12-Week Implementation Roadmap</h2>
+            <table>
+                <tr>
+                    <th>Week</th>
+                    <th>Milestone</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td><strong>Week 1</strong> (Dec 25)</td>
+                    <td>Campaign Launch - All ads active, 15,668 leads, RM 333/day</td>
+                    <td><span class="status-active">✓ COMPLETE</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Week 2</strong> (Jan 3)</td>
+                    <td>First Performance Data Collection & Week 1 Analysis</td>
+                    <td><span class="status-upcoming">Upcoming</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Week 4</strong> (Jan 17)</td>
+                    <td>Phase 1 Complete - Optimization recommendations</td>
+                    <td><span class="status-upcoming">Upcoming</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Week 5</strong> (Jan 24)</td>
+                    <td>Custom Thumbnail & Reels Implementation 🎬⚡</td>
+                    <td><span class="status-upcoming">Upcoming</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Week 6</strong> (Jan 31)</td>
+                    <td>Cold Prospecting Campaign Launch</td>
+                    <td><span class="status-upcoming">Upcoming</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Week 8</strong> (Feb 14)</td>
+                    <td>Scale Decision - Budget increase to RM 15-20K</td>
+                    <td><span class="status-upcoming">Upcoming</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Week 12</strong> (Mar 14)</td>
+                    <td>Quarterly Review - Full optimization analysis</td>
+                    <td><span class="status-upcoming">Upcoming</span></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- KEY SUCCESS FACTORS -->
+        <section>
+            <h2>💡 Key Success Factors</h2>
+            
+            <div class="info-box client-owned">
+                <strong>⚠️ IMPORTANT:</strong> Success factors lie primarily in YOUR hands. We setup and let it run. We monitor and offer suggestions. But the outcome depends on:
+                <ul style="margin-top: 10px;">
+                    <li><strong>Your database quality & recency</strong> - We can't control this</li>
+                    <li><strong>Your creative content</strong> - We suggest, you produce</li>
+                    <li><strong>Your messaging angle</strong> - Only you know your unique value</li>
+                </ul>
+            </div>
+
+            <div class="success-factor">
+                <div class="success-factor-title">📊 Data Quality Drives ROAS</div>
+                <div class="success-factor-content">
+                    Your ROAS is only as good as your data. How accurate? How recent? The 15,668 leads we have are cleaned and verified (99.5% phone coverage). But ongoing - keep your database fresh. Remove dormant contacts. The better your data, the better your results.
+                </div>
+            </div>
+
+            <div class="success-factor">
+                <div class="success-factor-title">📱 Reels & Stories Win Big</div>
+                <div class="success-factor-content">
+                    For your target demographic, Reels and Stories show 2-3x better engagement and 30-50% lower CPM than feed ads. If ROAS doesn't improve in first month, we recommend shifting focus exclusively to Reels/Stories placements. Why? Feed placements get cluttered with competitor ads. Reels/Stories capture focused, undistracted attention. 
+                    <br><br>
+                    <strong style="color: #e74c3c;">⚡ CRITICAL: We need more compelling Reels/Stories content from you to maximize this channel.</strong> Please prepare engaging, caption-rich vertical video content (9:16 format). This is the difference between good ROAS and great ROAS.
+                </div>
+            </div>
+
+            <div class="success-factor">
+                <div class="success-factor-title">🌿 Islamic Wellness Messaging is Your Unique Advantage</div>
+                <div class="success-factor-content">
+                    Your Islamic-based wellness positioning (Tibb Nabawi, prophetic medicine) is UNIQUE in the Malaysian market. No one else is doing this at scale. This is your first-mover advantage.
+                    <br><br>
+                    <strong>For all future content production:</strong> Keep this angle front and center. Lean into the Islamic wellness narrative, the spiritual-physical-mental integration, the alternative to Western medicine approach. This is what sets you apart and resonates with your target audience.
+                </div>
+            </div>
+        </section>
+
+        <!-- NEXT STEPS -->
+        <section>
+            <h2>🎯 Next Steps</h2>
+            
+            <h3>This Week:</h3>
+            <ul>
+                <li>Monitor campaign daily - check all ads delivering, budget pacing normal</li>
+                <li>Verify landing page loads correctly, CTA visible</li>
+                <li>Confirm CRM conversion tracking is receiving data</li>
+                <li>Share this report with team and stakeholders</li>
+            </ul>
+            
+            <h3>Week 2:</h3>
+            <ul>
+                <li>Collect first week performance metrics (CTR, CPC, conversions)</li>
+                <li>Generate Week 1 performance review</li>
+                <li>Analyze segment performance (🔥 vs 😎 vs 🧊)</li>
+                <li><strong>🎬⚡ START creating Reels & Stories content with custom thumbnails - THIS IS KEY for improving ROAS</strong></li>
+            </ul>
+            
+            <h3>Week 4:</h3>
+            <ul>
+                <li>Complete Phase 1 optimization analysis</li>
+                <li>Identify best-performing creatives and placements</li>
+                <li>Plan Phase 2 budget scale-up (if targets met)</li>
+                <li>Review new Reels/Stories performance vs feed</li>
+            </ul>
+        </section>
+
+        <!-- IMPLEMENTATION TASKS - COMPLETED -->
+        <section>
+            <h2>✅ Implementation Tasks - Completed</h2>
+            
+            <div class="info-box" style="border-left-color: #2ecc71; background: #f0fdf4;">
+                <strong style="color: #16a34a; font-size: 1.1em;">All Critical Tasks Completed Successfully</strong>
+            </div>
+            
+            <table>
+                <tr>
+                    <th>Task</th>
+                    <th>Status</th>
+                    <th>Completion Date</th>
+                    <th>Notes</th>
+                </tr>
+                <tr>
+                    <td><strong>Campaign Structure Setup</strong><br/>Create campaign, ad sets, and ads in Meta Ads Manager</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ COMPLETE</td>
+                    <td>Dec 28, 2025</td>
+                    <td>ISW | BOOKINGS | CONVERSIONS campaign live with 9 ads across 3 segments</td>
+                </tr>
+                <tr>
+                    <td><strong>Database Cleansing</strong><br/>Clean, validate, and segment audience data</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ COMPLETE</td>
+                    <td>Dec 27, 2025</td>
+                    <td>18,500+ records → 15,668 verified leads (84.7% retention, 99.5% phone coverage)</td>
+                </tr>
+                <tr>
+                    <td><strong>Custom Audience Upload</strong><br/>Upload segmented lists to Meta Ads Manager</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ COMPLETE</td>
+                    <td>Dec 28, 2025</td>
+                    <td>🔥 HOT (2,097), 😎 WARM (12,628), 🧊 COLD (943) audiences created and validated</td>
+                </tr>
+                <tr>
+                    <td><strong>Creative Asset Deployment</strong><br/>Upload and link creatives to ads</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ COMPLETE</td>
+                    <td>Dec 28, 2025</td>
+                    <td>5 creatives deployed: 3 videos + 2 static images across 9 active ads</td>
+                </tr>
+                <tr>
+                    <td><strong>Budget Allocation</strong><br/>Configure daily budgets and bid amounts</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ COMPLETE</td>
+                    <td>Dec 28, 2025</td>
+                    <td>RM 333/day allocated: 40% HOT (RM 133), 40% WARM (RM 133), 20% COLD (RM 67)</td>
+                </tr>
+                <tr>
+                    <td><strong>Landing Page Verification</strong><br/>Test CTA, conversion tracking, page load</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ COMPLETE</td>
+                    <td>Dec 28, 2025</td>
+                    <td>bangkitkannikmathidupmu.com verified - CTA working, tracking pixel firing</td>
+                </tr>
+                <tr>
+                    <td><strong>Conversion Tracking Setup</strong><br/>Install and verify pixel and CRM tracking</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ COMPLETE</td>
+                    <td>Dec 28, 2025</td>
+                    <td>Meta pixel and CRM conversion events configured and tested</td>
+                </tr>
+                <tr>
+                    <td><strong>Meta Ads Review</strong><br/>Submit for platform review and approval</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ APPROVED</td>
+                    <td>Dec 28, 2025</td>
+                    <td>All 9 ads approved by Meta - no restrictions or policy violations</td>
+                </tr>
+                <tr>
+                    <td><strong>Campaign Launch</strong><br/>Activate campaign and monitor initial delivery</td>
+                    <td style="color: #2ecc71; font-weight: bold;">✅ LIVE</td>
+                    <td>Dec 28, 2025</td>
+                    <td>Campaign actively delivering ads - all segments running normally</td>
+                </tr>
+                <tr style="background: #f0fdf4; font-weight: bold; color: #16a34a;">
+                    <td colspan="4">🎉 <strong>OVERALL STATUS: ALL TASKS COMPLETED & CAMPAIGN OPERATIONAL</strong></td>
+                </tr>
+            </table>
+
+            <div class="info-box" style="border-left-color: #3498db; background: #eff6ff; margin-top: 20px;">
+                <strong>📊 Campaign Status Summary:</strong>
+                <ul style="margin: 10px 0 0 20px; font-size: 0.95em;">
+                    <li><strong>Campaign Name:</strong> ISW | BOOKINGS | CONVERSIONS</li>
+                    <li><strong>Total Leads Targeted:</strong> 15,668 contacts across 3 segments</li>
+                    <li><strong>Active Ads:</strong> 9 (5 Hot + 2 Warm + 2 Cold)</li>
+                    <li><strong>Daily Budget:</strong> RM 333</li>
+                    <li><strong>Monthly Budget:</strong> RM 9,990</li>
+                    <li><strong>Campaign Status:</strong> ✅ LIVE & DELIVERING</li>
+                    <li><strong>Meta Platform Status:</strong> ✅ APPROVED</li>
+                    <li><strong>Launch Date:</strong> December 28, 2025</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <p>ISW Retargeting Campaign | December 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleDropdown(element) {
+            const dropdown = element.querySelector('.dropdown-content');
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(el => {
+                if (el !== dropdown) el.classList.remove('show');
+            });
+            // Toggle current dropdown
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.metric-card')) {
+                document.querySelectorAll('.dropdown-content').forEach(el => {
+                    el.classList.remove('show');
+                });
+            }
+        });
+
+        // Budget Breakdown Chart
+        const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+        new Chart(budgetCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['🔥 HOT (RM 3,990)', '😎 WARM (RM 3,990)', '🧊 COLD (RM 2,010)'],
+                datasets: [{
+                    data: [40, 40, 20],
+                    backgroundColor: ['#e74c3c', '#f39c12', '#3498db'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 12 } }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Monthly Budget Allocation (RM 10,000)',
+                        font: { size: 14, weight: 'bold' }
+                    }
+                }
+            }
+        });
+
+        // ROAS Projection Chart
+        const roasCtx = document.getElementById('roasChart').getContext('2d');
+        new Chart(roasCtx, {
+            type: 'line',
+            data: {
+                labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6'],
+                datasets: [
+                    {
+                        label: 'Front-End ROAS',
+                        data: [0.9, 0.95, 3.0, 3.0, 6.0, 6.0],
+                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Back-End ROAS',
+                        data: [2.5, 2.5, 7.7, 8.8, 18.7, 22.0],
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5
+                    },
+                    {
+                        label: '10x Target',
+                        data: [10, 10, 10, 10, 10, 10],
+                        borderColor: '#e74c3c',
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'ROAS Projection - 6 Month Trajectory',
+                        font: { size: 14, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'ROAS Multiplier' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
